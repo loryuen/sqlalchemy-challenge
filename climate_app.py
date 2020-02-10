@@ -51,13 +51,77 @@ def precipitation():
     all_prcp = []
     for date, prcp in date_prcp:
         all_prcp_dict = {}
-        all_prcp_dict['date'] = date
+        all_prcp_dict['date'] = date # FIX THIS TO BE KEY AND PRCP TO BE VALUE
         all_prcp_dict['prcp'] = prcp
         all_prcp.append(all_prcp_dict)
 
     return jsonify(all_prcp)
 
+@app.route("/api/v1.0/stations")
+def stations():
+    # create session link from python to DB
+    session = Session(engine)
+    
+    # query for stations
+    stations = session.query(Station.station, Station.name).all()
 
+    # close session
+    session.close
+    
+    # create list
+    all_stations = []
+    for each, name in stations:
+        stations_dict = {}
+        stations_dict['station']=each
+        stations_dict['name']=name
+        all_stations.append(stations_dict)
+
+    return jsonify(all_stations)
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    # create session link
+    session = Session(engine)
+
+    # query for date and temp from a year from the last data point
+    date_temp_year = session.query(Measurement.date, Measurement.tobs).\
+        filter(Measurement.date >= '2016-08-23').filter(Measurement.date <= '2017-08-23').\
+        all()
+
+    # close session
+    session.close
+
+    # return jsonified data 
+    return jsonify (date_temp_year)
+
+@app.route("/api/v1.0/<start>")
+def start_date(start):
+    # create session link
+    session = Session(engine)
+
+    # query for min, avg and max temps for dates greater than or equal to start date
+    startdate = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start).all()
+
+    # close session
+    session.close
+
+    return jsonify(startdate)
+
+@app.route("/api/v1.0/<start>/<end>")
+def start_end_date(start,end):
+    # create session link
+    session = Session(engine)
+
+    # query for min, avg and max temps for dates greater than or equal to start date
+    startenddate = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start).\
+        filter(Measurement.date <= end).all()
+
+    # close session
+    session.close
+
+    return jsonify(startdate)
 
 if __name__ == '__main__':
     app.run(debug=True)
