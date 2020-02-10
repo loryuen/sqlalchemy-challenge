@@ -34,8 +34,8 @@ def home():
         f'Precipitation: /api/v1.0/precipitation<br/>'
         f'Stations: /api/v1.0/stations<br/>'
         f'Temperature Observations: /api/v1.0/tobs<br/>'
-        f'Min, avg and max temps for a given start date: /api/v1.0/<start><br/>'
-        f'Min, avg and max temps for a given start and end date: /api/v1.0/<start>/<end>'
+        f'Min, avg and max temps for a given start date (yyyy-mm-dd): /api/v1.0/startdate<br/>'
+        f'Min, avg and max temps for a given start and end date (yyyy-mm-dd): /api/v1.0/startdate/enddate'
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -51,9 +51,9 @@ def precipitation():
     all_prcp = []
     for date, prcp in date_prcp:
         all_prcp_dict = {}
-        all_prcp_dict['date'] = date # FIX THIS TO BE KEY AND PRCP TO BE VALUE
+        all_prcp_dict['date'] = date 
         all_prcp_dict['prcp'] = prcp
-        all_prcp.append(all_prcp_dict)
+        all_prcp.append({date:prcp})
 
     return jsonify(all_prcp)
 
@@ -74,7 +74,7 @@ def stations():
         stations_dict = {}
         stations_dict['station']=each
         stations_dict['name']=name
-        all_stations.append(stations_dict)
+        all_stations.append({each:name})
 
     return jsonify(all_stations)
 
@@ -91,8 +91,15 @@ def tobs():
     # close session
     session.close
 
-    # return jsonified data 
-    return jsonify (date_temp_year)
+    # creat list and return jsonified data 
+    yeartemps = []
+    for d, t in date_temp_year:
+        temp_dict ={}
+        temp_dict['date']=d
+        temp_dict['tobs']=t
+        yeartemps.append({d:t})
+        
+    return jsonify (yeartemps)
 
 @app.route("/api/v1.0/<start>")
 def start_date(start):
@@ -109,7 +116,7 @@ def start_date(start):
     return jsonify(startdate)
 
 @app.route("/api/v1.0/<start>/<end>")
-def start_end_date(start,end):
+def start_end_date(start, end):
     # create session link
     session = Session(engine)
 
@@ -121,7 +128,7 @@ def start_end_date(start,end):
     # close session
     session.close
 
-    return jsonify(startdate)
+    return jsonify(startenddate)
 
 if __name__ == '__main__':
     app.run(debug=True)
