@@ -63,18 +63,21 @@ def stations():
     session = Session(engine)
     
     # query for stations
-    stations = session.query(Station.station, Station.name).all()
+    stations = session.query(Station.station).all()
 
     # close session
     session.close
     
     # create list
-    all_stations = []
-    for each, name in stations:
-        stations_dict = {}
-        stations_dict['station']=each
-        stations_dict['name']=name
-        all_stations.append({each:name})
+    all_stations = list(np.ravel(stations))
+    
+    # alternate method - dictionary and include station name and id
+   # all_stations = []
+   # for each, name in stations:
+   #     stations_dict = {}
+   #     stations_dict['station']=each
+   #     stations_dict['name']=name
+   #     all_stations.append({each:name})
 
     return jsonify(all_stations)
 
