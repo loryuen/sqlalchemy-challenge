@@ -115,6 +115,10 @@ def start_date(start):
 
     # close session
     session.close
+    
+    # convert to list and label
+    startdate = list(np.ravel(startdate))
+    startdate = f'Min: {startdate[0]}, Avg: {startdate[1]}, Max: {startdate[2]}'
 
     return jsonify(startdate)
 
@@ -130,6 +134,10 @@ def start_end_date(start, end):
 
     # close session
     session.close
+
+    # convert to list and label
+    startenddate = list(np.ravel(startenddate))
+    startenddate = f'Min: {startenddate[0]}, Avg: {startenddate[1]}, Max: {startenddate[2]}'
 
     return jsonify(startenddate)
 
